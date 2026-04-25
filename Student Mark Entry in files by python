@@ -1,0 +1,24 @@
+def student_entry():
+    filename = "student_marks.txt"
+
+    with open(filename, "a") as file:
+        roll = input("Enter Student Roll No: ")
+        name = input("Enter Student Name: ")
+        marks = input("Enter Total Marks: ")
+        
+        record = f"{roll},{name},{marks}\n"
+        file.write(record)
+        print("Student record saved successfully!")
+
+def view_marks():
+    print("\n--- Student Marks List ---")
+    try:
+        with open("student_marks.txt", "r") as file:
+            for line in file:
+                roll, name, marks = line.strip().split(',')
+                print(f"Roll: {roll} | Name: {name} | Marks: {marks}")
+    except FileNotFoundError:
+        print("No records found yet.")
+
+student_entry()
+view_marks()
