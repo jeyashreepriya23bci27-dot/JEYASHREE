@@ -1,0 +1,69 @@
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+
+struct TollGate {
+    char vehicleNo[15];
+    char type[10]; // Car, Truck, Bike
+    char entryTime[20];
+    float fare;
+};
+
+float calculateFare(char type[]) {
+    if (strcasecmp(type, "Car") == 0) return 50.0;
+    if (strcasecmp(type, "Truck") == 0) return 150.0;
+    if (strcasecmp(type, "Bike") == 0) return 20.0;
+    return 100.0; // Default fare
+}
+
+void recordEntry() {
+    FILE *fp = fopen("toll_records.txt", "a");
+    struct TollGate t;
+    
+    printf("\n--- Toll Entry ---");
+    printf("\nEnter Vehicle Number: ");
+    scanf("%s", t.vehicleNo);
+    printf("Enter Type (Car/Truck/Bike): ");
+    scanf("%s", t.type);
+
+    t.fare = calculateFare(t.type);
+
+    time_t now = time(NULL);
+    struct tm *tm_struct = localtime(&now);
+    strftime(t.entryTime, sizeof(t.entryTime), "%H:%M:%S", tm_struct);
+
+    fprintf(fp, "%s | %s | %s | %.2f\n", t.vehicleNo, t.type, t.entryTime, t.fare);
+    
+    fclose(fp);
+    printf("Entry Recorded! Fare to pay: Rs. %.2f\n", t.fare);
+}
+
+void viewTollLogs() {
+    char line[100];
+    FILE *fp = fopen("toll_records.txt", "r");
+    
+    if (fp == NULL) {
+        printf("\nNo toll records found.\n");
+        return;
+    }
+
+    printf("\n--- Toll Transaction Logs ---\n");
+    printf("Vehicle No | Type | Time | Fare Paid\n");
+    while (fgets(line, sizeof(line), fp)) {
+        printf("%s", line);
+    }
+    fclose(fp);
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n1. Vehicle Entry\n2. View Toll History\n3. Exit\nChoice: ");
+        scanf("%d", &choice);
+        
+        if (choice == 1) recordEntry();
+        else if (choice == 2) viewTollLogs();
+        else break;
+    }
+    return 0;
+}
