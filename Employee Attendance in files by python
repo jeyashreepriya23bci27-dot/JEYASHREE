@@ -1,0 +1,25 @@
+import datetime
+
+def mark_attendance():
+    filename = "attendance.txt"
+    emp_id = input("Enter Employee ID: ")
+    
+    # Get current timestamp
+    now = datetime.datetime.now()
+    timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
+    
+    with open(filename, "a") as file:
+        file.write(f"EmpID: {emp_id} | Time: {timestamp}\n")
+        print(f"Attendance marked for {emp_id} at {timestamp}")
+
+def view_attendance():
+    print("\n--- Daily Attendance Logs ---")
+    try:
+        with open("attendance.txt", "r") as file:
+            print(file.read())
+    except FileNotFoundError:
+        print("No attendance logs exist.")
+
+# Main Menu
+mark_attendance()
+view_attendance()
