@@ -1,0 +1,59 @@
+#include <stdio.h>
+
+#define ROWS 5
+#define COLS 4
+
+// Global 2D array for seats
+int seats[ROWS][COLS] = {0}; 
+
+void displaySeating() {
+    printf("\n--- SEAT MAP (0: Available, 1: Booked) ---\n");
+    printf("      Col 1  Col 2  Col 3  Col 4\n");
+    for (int i = 0; i < ROWS; i++) {
+        printf("Row %d: ", i + 1);
+        for (int j = 0; j < COLS; j++) {
+            printf("[%d]    ", seats[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+void bookTicket() {
+    int r, c;
+    displaySeating();
+    printf("\nEnter Row (1-%d) and Column (1-%d) to book: ", ROWS, COLS);
+    scanf("%d %d", &r, &c);
+
+    // Adjusting for 0-based indexing
+    r--; c--;
+
+    if (r >= 0 && r < ROWS && c >= 0 && c < COLS) {
+        if (seats[r][c] == 0) {
+            seats[r][c] = 1;
+            printf("Success! Seat [%d, %d] is now booked.\n", r + 1, c + 1);
+            
+            // Log the booking to a file
+            FILE *fp = fopen("bookings.txt", "a");
+            fprintf(fp, "Seat: Row %d, Col %d | Status: Confirmed\n", r + 1, c + 1);
+            fclose(fp);
+        } else {
+            printf("Error: Seat is already booked!\n");
+        }
+    } else {
+        printf("Error: Invalid seat selection!\n");
+    }
+}
+
+int main() {
+    int choice;
+    while (1) {
+        printf("\n--- Ticket Booking System ---");
+        printf("\n1. View Seats\n2. Book a Ticket\n3. Exit\nChoice: ");
+        scanf("%d", &choice);
+
+        if (choice == 1) displaySeating();
+        else if (choice == 2) bookTicket();
+        else break;
+    }
+    return 0;
+}
