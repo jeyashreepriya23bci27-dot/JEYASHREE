@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <string.h>
+
+struct Trade {
+    char country[30];
+    char tradeType[10]; 
+    float value;        
+    char majorItem[30]; 
+};
+
+void recordTrade() {
+    FILE *fp = fopen("india_trade.txt", "a");
+    struct Trade t;
+
+    if (fp == NULL) return;
+
+    printf("\n--- New Trade Entry ---");
+    printf("\nEnter Partner Country: ");
+    scanf("%s", t.country);
+    printf("Trade Type (Import/Export): ");
+    scanf("%s", t.tradeType);
+    printf("Trade Value (in Billion USD): ");
+    scanf("%f", &t.value);
+    printf("Major Commodity: ");
+    scanf("%s", t.majorItem);
+
+    fprintf(fp, "%-15s | %-10s | %-6.2f B | %s\n", t.country, t.tradeType, t.value, t.majorItem);
+    
+    fclose(fp);
+    printf("Trade data with %s recorded successfully!\n", t.country);
+}
+
+void viewTradeReport() {
+    FILE *fp = fopen("india_trade.txt", "r");
+    char line[150];
+    float totalExport = 0, totalImport = 0;
+
+    if (!fp) {
+        printf("\nNo trade records found.\n");
+        return;
+    }
+
+    printf("\n--- India Global Trade Report ---\n");
+    printf("%-15s | %-10s | %-8s | %s\n", "Country", "Type", "Value", "Major Item");
+    printf("------------------------------------------------------------\n");
+    
+    while (fgets(line, sizeof(line), fp)) {
+        printf("%s", line);
+        
+        float val;
+        char type[15], c[30];
+        sscanf(line, "%s | %s | %f", c, type, &val);
+        
+        if (strcasecmp(type, "Export") == 0) totalExport += val;
+        else if (strcasecmp(type, "Import") == 0) totalImport += val;
+    }
+    
+    printf("------------------------------------------------------------\n");
+    printf("TOTAL EXPORTS: %.2f Billion USD\n", totalExport);
+    printf("TOTAL IMPORTS: %.2f Billion USD\n", totalImport);
+    printf("TRADE BALANCE: %.2f Billion USD\n", totalExport - totalImport);
+    fclose(fp);
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n1. Record New Trade\n2. View Trade Statistics\n3. Exit\nSelect: ");
+        scanf("%d", &choice);
+        if(choice == 1) recordTrade();
+        else if (choice == 2) viewTradeReport();
+        else break;
+    }
+    return 0;
+}
