@@ -1,0 +1,38 @@
+import datetime
+import time
+
+def log_location():
+    print("--- Starting GPS Trapping (Type 'exit' to stop) ---")
+    filename = "route_log.csv"
+    
+
+    with open(filename, "a") as f:
+        f.write("Timestamp,Latitude,Longitude,Speed\n")
+
+    try:
+        while True:
+            lat = input("\nEnter Current Latitude (e.g. 13.0827): ")
+            if lat.lower() == 'exit': break
+            
+            lon = input("Enter Current Longitude (e.g. 80.2707): ")
+            speed = input("Current Speed (km/h): ")
+            
+            timestamp = datetime.datetime.now().strftime("%H:%M:%S")
+            
+            # Save the "Trap" point
+            with open(filename, "a") as f:
+                f.write(f"{timestamp},{lat},{lon},{speed}\n")
+            
+            print(f"Location trapped at {timestamp}!")
+            
+    except KeyboardInterrupt:
+        print("\nLogging stopped.")
+
+def get_history():
+    print("\n--- Last Known Route ---")
+    with open("route_log.csv", "r") as f:
+        for line in f:
+            print(line.strip())
+
+
+log_location()
