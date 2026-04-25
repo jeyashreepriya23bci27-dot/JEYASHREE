@@ -1,0 +1,61 @@
+#include <stdio.h>
+#include <string.h>
+
+struct Museum {
+    char name[50];
+    char city[30];
+    char era[30]; // e.g., Mughal, Colonial, Ancient
+};
+
+void addMuseum() {
+    FILE *fp = fopen("museums.txt", "a");
+    struct Museum m;
+
+    printf("\nEnter Museum Name (use_underscores): ");
+    scanf("%s", m.name);
+    printf("Enter City: ");
+    scanf("%s", m.city);
+    printf("Enter Historical Era: ");
+    scanf("%s", m.era);
+
+    fprintf(fp, "%s %s %s\n", m.name, m.city, m.era);
+    fclose(fp);
+    printf("Museum spot added to the Indian heritage database!\n");
+}
+
+void searchByCity() {
+    FILE *fp = fopen("museums.txt", "r");
+    struct Museum m;
+    char searchCity[30];
+    int found = 0;
+
+    if (!fp) {
+        printf("Database empty.\n");
+        return;
+    }
+
+    printf("\nEnter City to find Museum spots: ");
+    scanf("%s", searchCity);
+
+    printf("\n--- Results for %s ---\n", searchCity);
+    while (fscanf(fp, "%s %s %s", m.name, m.city, m.era) != EOF) {
+        if (strcasecmp(m.city, searchCity) == 0) {
+            printf("Museum: %s | Era: %s\n", m.name, m.era);
+            found = 1;
+        }
+    }
+    if (!found) printf("No museum spots found in this city.\n");
+    fclose(fp);
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n1. Add Museum Spot\n2. Search by City\n3. Exit\nChoice: ");
+        scanf("%d", &choice);
+        if(choice == 1) addMuseum();
+        else if(choice == 2) searchByCity();
+        else break;
+    }
+    return 0;
+}
