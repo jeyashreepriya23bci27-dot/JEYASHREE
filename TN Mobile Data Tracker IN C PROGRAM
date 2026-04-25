@@ -1,0 +1,68 @@
+#include <stdio.h>
+#include <string.h>
+
+struct DataUsage {
+    char district[30];
+    float gbUsed;
+    char networkType[5]; // 4G or 5G
+};
+
+void logData() {
+    FILE *fp = fopen("tn_data_logs.txt", "a");
+    struct DataUsage d;
+
+    if (fp == NULL) return;
+
+    printf("\n--- TN Mobile Data Entry ---");
+    printf("\nEnter District Name (e.g., Chennai, Madurai): ");
+    scanf("%s", d.district);
+    printf("Enter Data Used (in GB): ");
+    scanf("%f", &d.gbUsed);
+    printf("Network Type (4G/5G): ");
+    scanf("%s", d.networkType);
+
+    fprintf(fp, "%-15s | %-8.2f GB | %s\n", d.district, d.gbUsed, d.networkType);
+    
+    fclose(fp);
+    printf("Data usage for %s logged successfully!\n", d.district);
+}
+
+void generateStateReport() {
+    FILE *fp = fopen("tn_data_logs.txt", "r");
+    char line[100];
+    float totalGB = 0;
+
+    if (!fp) {
+        printf("\nNo data logs found.\n");
+        return;
+    }
+
+    printf("\n--- Tamil Nadu Mobile Usage Report ---\n");
+    printf("District        | Usage       | Network\n");
+    printf("---------------------------------------\n");
+    
+    while (fgets(line, sizeof(line), fp)) {
+        printf("%s", line);
+       
+        float currentGB;
+        char dist[30], net[10];
+        sscanf(line, "%s | %f", dist, &currentGB);
+        totalGB += currentGB;
+    }
+    
+    printf("---------------------------------------\n");
+    printf("TOTAL STATE CONSUMPTION: %.2f GB\n", totalGB);
+    fclose(fp);
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n1. Log District Data\n2. View State Report\n3. Exit\nSelect: ");
+        scanf("%d", &choice);
+        if(choice == 1) logData();
+        else if(choice == 2) generateStateReport();
+        else break;
+    }
+    return 0;
+}
