@@ -1,0 +1,69 @@
+#include <stdio.h>
+#include <string.h>
+
+struct Hospital {
+    char name[50];
+    char city[30];
+    char specialities[100]; // e.g., Cardiology, Ortho, Neuro
+    int bedCount;
+};
+
+void addHospital() {
+    FILE *fp = fopen("hospitals_india.txt", "a");
+    struct Hospital h;
+
+    if (fp == NULL) return;
+
+    printf("\n--- Add Multispeciality Hospital ---");
+    printf("\nEnter Hospital Name (use_underscores): ");
+    scanf("%s", h.name);
+    printf("Enter City: ");
+    scanf("%s", h.city);
+    printf("Enter Specialities (comma_separated): ");
+    scanf("%s", h.specialities);
+    printf("Enter Total Bed Capacity: ");
+    scanf("%d", &h.bedCount);
+
+    // Save: Name | City | Specialities | Beds
+    fprintf(fp, "%-20s | %-15s | %-20s | %d\n", h.name, h.city, h.specialities, h.bedCount);
+    
+    fclose(fp);
+    printf("Hospital details added to the national database!\n");
+}
+
+void searchBySpeciality() {
+    FILE *fp = fopen("hospitals_india.txt", "r");
+    char line[200], searchKey[30];
+    int found = 0;
+
+    if (!fp) {
+        printf("\nDatabase empty.\n");
+        return;
+    }
+
+    printf("\nEnter Speciality to search (e.g., Cardio): ");
+    scanf("%s", searchKey);
+
+    printf("\n--- Hospitals offering %s ---\n", searchKey);
+    while (fgets(line, sizeof(line), fp)) {
+        if (strcasestr(line, searchKey)) { // Search for speciality in the line
+            printf("%s", line);
+            found = 1;
+        }
+    }
+
+    if (!found) printf("No hospitals found with that speciality.\n");
+    fclose(fp);
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n1. Register Multispeciality Hospital\n2. Search by Speciality\n3. Exit\nSelect: ");
+        scanf("%d", &choice);
+        if(choice == 1) addHospital();
+        else if(choice == 2) searchBySpeciality();
+        else break;
+    }
+    return 0;
+}
