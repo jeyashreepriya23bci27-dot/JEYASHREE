@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+
+struct User {
+    char name[30];
+    char familyContact[15];
+    char bloodGroup[5];
+};
+
+void registerUser() {
+    FILE *fp = fopen("user_directory.txt", "a");
+    struct User u;
+
+    printf("\n--- Emergency Registration ---");
+    printf("\nEnter User Name: ");
+    scanf("%s", u.name);
+    printf("Enter Family Member Phone No: ");
+    scanf("%s", u.familyContact);
+    printf("Enter Blood Group: ");
+    scanf("%s", u.bloodGroup);
+
+    fprintf(fp, "%s %s %s\n", u.name, u.familyContact, u.bloodGroup);
+    fclose(fp);
+    printf("User registered for emergency alerts.\n");
+}
+
+void reportAccident() {
+    FILE *fp = fopen("user_directory.txt", "r");
+    char victimName[30], currentName[30], contact[15], bg[5];
+    int found = 0;
+
+    if (!fp) {
+        printf("Error: No user database found.\n");
+        return;
+    }
+
+    printf("\n🚨 REPORT ACCIDENT");
+    printf("\nEnter Name of the Victim: ");
+    scanf("%s", victimName);
+
+    while (fscanf(fp, "%s %s %s", currentName, contact, bg) != EOF) {
+        if (strcasecmp(currentName, victimName) == 0) {
+            printf("\n--- 📢 EMERGENCY NOTIFICATION SENT ---");
+            printf("\nAlerting Family at: %s", contact);
+            printf("\nMessage: Critical! %s met with an accident.", victimName);
+            printf("\nMedical Info: Blood Group %s required.", bg);
+            
+            // Log the accident for record keeping
+            FILE *log = fopen("accident_logs.txt", "a");
+            time_t now = time(NULL);
+            fprintf(log, "Accident: %s | Contacted: %s | Time: %s", victimName, contact, ctime(&now));
+            fclose(log);
+            
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found) printf("No record found for '%s'. Informing nearest station instead.\n", victimName);
+    fclose(fp);
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n1. Register Family Contact\n2. Report Accident (Send Alert)\n3. Exit\nChoice: ");
+        scanf("%d", &choice);
+        if(choice == 1) registerUser();
+        else if(choice == 2) reportAccident();
+        else break;
+    }
+    return 0;
+}
