@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+
+#define MAX_SLOTS 10
+
+struct ParkingSlot {
+    int slotID;
+    int isOccupied; 
+    char vehicleNo[15];
+    time_t startTime;
+};
+
+void initializeSlots(struct ParkingSlot slots[]) {
+    for (int i = 0; i < MAX_SLOTS; i++) {
+        slots[i].slotID = i + 1;
+        slots[i].isOccupied = 0;
+        strcpy(slots[i].vehicleNo, "");
+    }
+}
+
+void parkVehicle(struct ParkingSlot slots[]) {
+    int found = 0;
+    for (int i = 0; i < MAX_SLOTS; i++) {
+        if (slots[i].isOccupied == 0) {
+            printf("\nEnter Vehicle Number: ");
+            scanf("%s", slots[i].vehicleNo);
+            slots[i].isOccupied = 1;
+            slots[i].startTime = time(NULL); 
+            printf("Vehicle parked successfully at Slot %d!\n", slots[i].slotID);
+            found = 1;
+            break;
+        }
+    }
+    if (!found) printf("\nSorry, Parking Full!\n");
+}
+
+void removeVehicle(struct ParkingSlot slots[]) {
+    int slotNum;
+    float ratePerHour = 30.0;
+    printf("\nEnter Slot Number to vacate (1-%d): ", MAX_SLOTS);
+    scanf("%d", &slotNum);
+
+    int i = slotNum - 1;
+    if (i >= 0 && i < MAX_SLOTS && slots[i].isOccupied == 1) {
+        time_t endTime = time(NULL);
+        double seconds = difftime(endTime, slots[i].startTime);
+        
+     
+        float fee = (seconds / 3600.0) * ratePerHour;
+        if (fee < ratePerHour) fee = ratePerHour; // Minimum 1 hour charge
+
+        printf("Vehicle %s removed from Slot %d.\n", slots[i].vehicleNo, slotNum);
+        printf("Total Parking Fee: Rs. %.2f\n", fee);
+        
+        FILE *fp = fopen("parking_revenue.txt", "a");
+        fprintf(fp, "Slot: %d | Vehicle: %s | Fee: %.2f\n", slotNum, slots[i].vehicleNo, fee);
+        fclose(fp);
+
+        slots[i].isOccupied = 0; // Reset slot
+    } else {
+        printf("Slot is already empty or invalid!\n");
+    }
+}
+
+void viewStatus(struct ParkingSlot slots[]) {
+    printf("\n--- Current Parking Status ---\n");
+    printf("Slot ID | Status   | Vehicle No\n");
+    for (int i = 0; i < MAX_SLOTS; i++) {
+        printf("%d\t| %s | %s\n", slots[i].slotID, 
+               slots[i].isOccupied ? "OCCUPIED" : "EMPTY   ", 
+               slots[i].isOccupied ? slots[i].vehicleNo : "-");
+    }
+}
+
+int main() {
+    struct ParkingSlot slots[MAX_SLOTS];
+    initializeSlots(slots);
+    int choice;
+
+    while (1) {
+        printf("\n1. Park Vehicle\n2. Remove Vehicle (Exit)\n3. View Status\n4. Exit Program\nChoice: ");
+        scanf("%d", &choice);
+        if (choice == 1) parkVehicle(slots);
+        else if (choice == 2) removeVehicle(slots);
+        else if (choice == 3) viewStatus(slots);
+        else break;
+    }
+    return 0;
+}
