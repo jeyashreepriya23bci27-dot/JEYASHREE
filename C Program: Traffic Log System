@@ -1,0 +1,46 @@
+#include <stdio.h>
+#include <time.h>
+
+void logTraffic() {
+    FILE *fp = fopen("traffic_reports.txt", "a");
+    char location[50];
+    int level;
+    char *status[] = {"Low", "Medium", "High", "Heavy Jam"};
+
+    if (fp == NULL) return;
+
+    printf("Enter Location Name (e.g., Silk_Board): ");
+    scanf("%s", location);
+    printf("Select Congestion Level (0-Low, 1-Med, 2-High, 3-Jam): ");
+    scanf("%d", &level);
+
+  
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    char timeStr[20];
+    strftime(timeStr, sizeof(timeStr), "%H:%M", tm);
+
+  
+    fprintf(fp, "%s | %-15s | %s\n", timeStr, location, status[level]);
+    
+    fclose(fp);
+    printf("Traffic report logged at %s!\n", timeStr);
+}
+
+void viewReports() {
+    char line[100];
+    FILE *fp = fopen("traffic_reports.txt", "r");
+    if (!fp) return;
+
+    printf("\n--- Recent Traffic Reports ---\n");
+    while (fgets(line, sizeof(line), fp)) {
+        printf("%s", line);
+    }
+    fclose(fp);
+}
+
+int main() {
+    logTraffic();
+    viewReports();
+    return 0;
+}
