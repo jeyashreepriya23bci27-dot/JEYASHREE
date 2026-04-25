@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <string.h>
+
+struct Youngster {
+    char name[30];
+    int age;
+    char education[20]; 
+    char gender;        
+};
+
+void addEntry() {
+    FILE *fp = fopen("unemployment_data.txt", "a");
+    struct Youngster y;
+
+    if (fp == NULL) return;
+
+    printf("\n--- New Candidate Entry ---");
+    printf("\nEnter Name: ");
+    scanf("%s", y.name);
+    printf("Enter Age (18-35): ");
+    scanf("%d", &y.age);
+    printf("Education (Graduate/Diploma/School): ");
+    scanf("%s", y.education);
+    printf("Gender (M/F): ");
+    scanf(" %c", &y.gender);
+
+    fprintf(fp, "%s %d %s %c\n", y.name, y.age, y.education, y.gender);
+    
+    fclose(fp);
+    printf("Data added to National Statistics Database.\n");
+}
+
+void generateStatistics() {
+    FILE *fp = fopen("unemployment_data.txt", "r");
+    struct Youngster y;
+    int total = 0, graduates = 0, males = 0, females = 0;
+
+    if (fp == NULL) {
+        printf("No data available.\n");
+        return;
+    }
+
+    while (fscanf(fp, "%s %d %s %c", y.name, &y.age, y.education, &y.gender) != EOF) {
+        total++;
+        if (strcasecmp(y.education, "Graduate") == 0) graduates++;
+        if (y.gender == 'M' || y.gender == 'm') males++;
+        if (y.gender == 'F' || y.gender == 'f') females++;
+    }
+    fclose(fp);
+
+    if (total == 0) {
+        printf("Record is empty.\n");
+        return;
+    }
+
+    printf("\n--- UNEMPLOYMENT STATISTICS REPORT (INDIA) ---");
+    printf("\nTotal Registered Youngsters: %d", total);
+    printf("\nGraduate Unemployment: %.2f%%", ((float)graduates / total) * 100);
+    printf("\nMale Unemployment: %.2f%%", ((float)males / total) * 100);
+    printf("\nFemale Unemployment: %.2f%%", ((float)females / total) * 100);
+    printf("\n----------------------------------------------\n");
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n1. Register Unemployed Youth\n2. Generate Stats Report\n3. Exit\nSelect: ");
+        scanf("%d", &choice);
+        if(choice == 1) addEntry();
+        else if(choice == 2) generateStatistics();
+        else break;
+    }
+    return 0;
+}
