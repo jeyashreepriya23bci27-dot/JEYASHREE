@@ -1,0 +1,30 @@
+def add_medicine():
+    with open("hospital_stock.txt", "a") as file:
+        med_id = input("Enter Medicine ID: ")
+        name = input("Enter Name: ")
+        expiry = input("Enter Expiry (MM/YYYY): ")
+        qty = input("Enter Quantity: ")
+        price = input("Enter Price per unit: ")
+        
+        file.write(f"{med_id},{name},{expiry},{qty},{price}\n")
+        print(f"Record for {name} saved successfully.")
+
+def check_low_stock():
+    print("\n--- Low Stock Alert (Less than 10 units) ---")
+    try:
+        with open("hospital_stock.txt", "r") as file:
+            for line in file:
+             
+                mid, name, exp, qty, price = line.strip().split(',')
+                if int(qty) < 10:
+                    print(f"ALERT: {name} only has {qty} units left!")
+    except FileNotFoundError:
+        print("No stock file found.")
+
+
+while True:
+    print("\n1. Add Entry\n2. Low Stock Check\n3. Exit")
+    cmd = input("Select Option: ")
+    if cmd == '1': add_medicine()
+    elif cmd == '2': check_low_stock()
+    elif cmd == '3': break
