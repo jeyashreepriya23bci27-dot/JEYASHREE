@@ -1,0 +1,88 @@
+#include <stdio.h>
+#include <string.h>
+
+struct Child {
+    char name[30];
+    int age;
+    float weight; // in kg
+    float height; // in meters
+    float bmi;
+    char status[20];
+};
+
+// Function to determine health status based on BMI
+void determineStatus(struct Child *c) {
+    c->bmi = c->weight / (c->height * c->height);
+
+    if (c->bmi < 14.5) {
+        strcpy(c->status, "Malnourished");
+    } else if (c->bmi >= 14.5 && c->bmi <= 18.5) {
+        strcpy(c->status, "Healthy");
+    } else {
+        strcpy(c->status, "Overweight");
+    }
+}
+
+void registerChild() {
+    FILE *fp = fopen("malnutrition_data.txt", "a");
+    struct Child c;
+
+    printf("\n--- Child Health Entry ---");
+    printf("\nEnter Child's Name: ");
+    scanf("%s", c.name);
+    printf("Enter Age: ");
+    scanf("%d", &c.age);
+    printf("Enter Weight (kg): ");
+    scanf("%f", &c.weight);
+    printf("Enter Height (meters): ");
+    scanf("%f", &c.height);
+
+    determineStatus(&c);
+
+    // Save: Name | Age | BMI | Status
+    fprintf(fp, "%-15s | %-3d | BMI: %-5.2f | Status: %s\n", c.name, c.age, c.bmi, c.status);
+    
+    fclose(fp);
+    printf("\nRecord saved! Health Status: %s\n", c.status);
+}
+
+void generateStatsReport() {
+    FILE *fp = fopen("malnutrition_data.txt", "r");
+    char line[100];
+    int total = 0, malnourished = 0;
+
+    if (!fp) {
+        printf("\nNo data records found.\n");
+        return;
+    }
+
+    printf("\n--- Malnutrition Statistics Report ---\n");
+    while (fgets(line, sizeof(line), fp)) {
+        printf("%s", line);
+        total++;
+        if (strstr(line, "Malnourished")) {
+            malnourished++;
+        }
+    }
+    
+    if (total > 0) {
+        float percentage = ((float)malnourished / total) * 100;
+        printf("--------------------------------------\n");
+        printf("Total Children Screened: %d\n", total);
+        printf("Malnourished Count: %d\n", malnourished);
+        printf("Prevalence Rate: %.2f%%\n", percentage);
+    }
+    fclose(fp);
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n1. Add Child Health Data\n2. View Statistics Report\n3. Exit\nSelect Option: ");
+        scanf("%d", &choice);
+        if(choice == 1) registerChild();
+        else if(choice == 2) generateStatsReport();
+        else break;
+    }
+    return 0;
+}
