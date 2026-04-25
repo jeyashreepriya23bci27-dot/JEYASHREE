@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char name[50];
+    char phone[15];
+    char email[50];
+} Contact;
+
+void addContact();
+void viewContacts();
+
+int main() {
+    int choice;
+    while (1) {
+        printf("\n--- Professional Contact Manager ---\n");
+        printf("1. Add Contact\n2. View Contacts\n3. Exit\n");
+        printf("Enter choice: ");
+        if (scanf("%d", &choice) != 1) break;
+
+        switch (choice) {
+            case 1: addContact(); break;
+            case 2: viewContacts(); break;
+            case 3: exit(0);
+            default: printf("Invalid choice.\n");
+        }
+    }
+    return 0;
+}
+
+void addContact() {
+    FILE *file = fopen("contacts.bin", "ab"); // Binary mode for professional storage
+    if (file == NULL) {
+        perror("Error opening file");
+        return;
+    }
+
+    Contact newContact;
+    printf("Name: "); scanf("%s", newContact.name);
+    printf("Phone: "); scanf("%s", newContact.phone);
+    printf("Email: "); scanf("%s", newContact.email);
+
+    fwrite(&newContact, sizeof(Contact), 1, file);
+    fclose(file);
+    printf("Contact saved successfully.\n");
+}
+
+void viewContacts() {
+    FILE *file = fopen("contacts.bin", "rb");
+    if (file == NULL) {
+        printf("No contacts found.\n");
+        return;
+    }
+
+    Contact temp;
+    printf("\n%-20s %-15s %-20s\n", "Name", "Phone", "Email");
+    while (fread(&temp, sizeof(Contact), 1, file)) {
+        printf("%-20s %-15s %-20s\n", temp.name, temp.phone, temp.email);
+    }
+    fclose(file);
+}
