@@ -1,0 +1,59 @@
+#include <stdio.h>
+#include <string.h>
+
+struct CollegeRule {
+    char category[30]; 
+    char description[100];
+};
+
+void addRule() {
+    FILE *fp = fopen("mepco_rules.txt", "a");
+    struct CollegeRule r;
+
+    printf("\nEnter Category (DressCode/Hostel/Academic/Lab): ");
+    scanf("%s", r.category);
+    getchar(); 
+    printf("Enter Rule Description: ");
+    fgets(r.description, sizeof(r.description), stdin);
+
+    fprintf(fp, "%s | %s", r.category, r.description);
+    fclose(fp);
+    printf("Rule successfully added to the handbook.\n");
+}
+
+void searchRules() {
+    FILE *fp = fopen("mepco_rules.txt", "r");
+    char line[150], searchCat[30];
+    int found = 0;
+
+    if (!fp) {
+        printf("Handbook is empty.\n");
+        return;
+    }
+
+    printf("\nEnter Category to view rules: ");
+    scanf("%s", searchCat);
+
+    printf("\n--- MEPCO RULES: %s ---\n", searchCat);
+    while (fgets(line, sizeof(line), fp)) {
+        if (strcasestr(line, searchCat)) {
+            printf("- %s", strchr(line, '|') + 2); 
+            found = 1;
+        }
+    }
+
+    if (!found) printf("No specific rules found for this category.\n");
+    fclose(fp);
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n1. Add New Rule\n2. View Rules by Category\n3. Exit\nChoice: ");
+        scanf("%d", &choice);
+        if(choice == 1) addRule();
+        else if(choice == 2) searchRules();
+        else break;
+    }
+    return 0;
+}
