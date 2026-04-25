@@ -1,0 +1,45 @@
+#include <stdio.h>
+
+int main() {
+    float amount, converted;
+    int choice;
+
+    float RS_TO_USD = 0.012;   
+    float YUAN_TO_USD = 0.14;  
+    float POUND_TO_USD = 1.27; 
+    float EURO_TO_USD = 1.08;  
+
+    printf("--- Currency to USD Converter ---\n");
+    printf("1. Rupees (Rs) to Dollar\n");
+    printf("2. Chinese Yuan to Dollar\n");
+    printf("3. British Pound to Dollar\n");
+    printf("4. Euro to Dollar\n");
+    printf("Enter your choice (1-4): ");
+    scanf("%d", &choice);
+
+    printf("Enter the amount: ");
+    scanf("%f", &amount);
+
+    switch(choice) {
+        case 1:
+            converted = amount * RS_TO_USD;
+            printf("%.2f Rupees = %.2f Dollars\n", amount, converted);
+            break;
+        case 2:
+            converted = amount * YUAN_TO_USD;
+            printf("%.2f Yuan = %.2f Dollars\n", amount, converted);
+            break;
+        case 3:
+            converted = amount * POUND_TO_USD;
+            printf("%.2f Pounds = %.2f Dollars\n", amount, converted);
+            break;
+        case 4:
+            converted = amount * EURO_TO_USD;
+            printf("%.2f Euro = %.2f Dollars\n", amount, converted);
+            break;
+        default:
+            printf("Invalid choice!\n");
+    }
+
+    return 0;
+}
