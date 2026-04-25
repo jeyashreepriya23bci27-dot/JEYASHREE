@@ -1,0 +1,95 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Book {
+    int id;
+    char title[50];
+    char author[50];
+};
+
+void addBook() {
+    FILE *fp = fopen("library.txt", "a");
+    struct Book b;
+
+    if (fp == NULL) return;
+
+    printf("\nEnter Book ID: ");
+    scanf("%d", &b.id);
+    getchar(); // Clear newline buffer
+    printf("Enter Title: ");
+    gets(b.title);
+    printf("Enter Author: ");
+    gets(b.author);
+
+    fprintf(fp, "%d | %s | %s\n", b.id, b.title, b.author);
+    fclose(fp);
+    printf("Book added successfully!\n");
+}
+
+void viewBooks() {
+    FILE *fp = fopen("library.txt", "r");
+    char line[150];
+
+    if (fp == NULL) {
+        printf("\nNo books in the library.\n");
+        return;
+    }
+
+    printf("\n--- Library Collection ---\n");
+    while (fgets(line, sizeof(line), fp)) {
+        printf("%s", line);
+    }
+    fclose(fp);
+}
+
+void issueBook() {
+    FILE *fp = fopen("library.txt", "r");
+    FILE *temp = fopen("temp.txt", "w");
+    struct Book b;
+    int targetID, found = 0;
+    char line[150];
+
+    if (fp == NULL) return;
+
+    printf("\nEnter Book ID to issue (remove): ");
+    scanf("%d", &targetID);
+
+    while (fgets(line, sizeof(line), fp)) {
+
+        sscanf(line, "%d", &b.id);
+        
+        if (b.id == targetID) {
+            found = 1; // Skip writing this line to temp file
+        } else {
+            fputs(line, temp);
+        }
+    }
+
+    fclose(fp);
+    fclose(temp);
+
+    remove("library.txt");        // Delete old file
+    rename("temp.txt", "library.txt"); // Rename temp to library
+
+    if (found) printf("Book ID %d issued successfully!\n", targetID);
+    else printf("Book not found.\n");
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n--- Library Menu ---");
+        printf("\n1. Add Book\n2. View Books\n3. Issue Book\n4. Exit\nChoice: ");
+        scanf("%d", &choice);
+
+        switch(choice) {
+            case 1: addBook(); break;
+            case 2: viewBooks(); break;
+            case 3: issueBook(); break;
+            case 4: exit(0);
+            default: printf("Invalid Choice!\n");
+        }
+    }
+    return 0;
+}
