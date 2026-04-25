@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <string.h>
+
+struct Citizen {
+    char name[30];
+    char state[20];
+    int age;
+    int isLiterate; // 1 for Literate, 0 for Illiterate
+};
+
+void addCitizenRecord() {
+    FILE *fp = fopen("literacy_census.txt", "a");
+    struct Citizen c;
+
+    printf("\n--- Census Entry ---");
+    printf("\nEnter Name: ");
+    scanf("%s", c.name);
+    printf("Enter State: ");
+    scanf("%s", c.state);
+    printf("Enter Age: ");
+    scanf("%d", &c.age);
+    printf("Is the person literate? (1-Yes, 0-No): ");
+    scanf("%d", &c.isLiterate);
+
+    // Save: Name | State | Age | Status
+    fprintf(fp, "%s %s %d %d\n", c.name, c.state, c.age, c.isLiterate);
+    
+    fclose(fp);
+    printf("Record saved successfully!\n");
+}
+
+void generateLiteracyReport() {
+    FILE *fp = fopen("literacy_census.txt", "r");
+    struct Citizen c;
+    int total = 0, literateCount = 0, illiterateCount = 0;
+
+    if (!fp) {
+        printf("\nNo census data found.\n");
+        return;
+    }
+
+    printf("\n--- India Literacy Statistics Report ---\n");
+    printf("%-15s | %-10s | %-5s | %-10s\n", "Name", "State", "Age", "Status");
+    printf("----------------------------------------------------\n");
+
+    while (fscanf(fp, "%s %s %d %d", c.name, c.state, &c.age, &c.isLiterate) != EOF) {
+        total++;
+        if (c.isLiterate == 1) {
+            literateCount++;
+            printf("%-15s | %-10s | %-5d | Literate\n", c.name, c.state, c.age);
+        } else {
+            illiterateCount++;
+            printf("%-15s | %-10s | %-5d | Illiterate\n", c.name, c.state, c.age);
+        }
+    }
+
+    if (total > 0) {
+        float rate = ((float)literateCount / total) * 100;
+        printf("----------------------------------------------------\n");
+        printf("Total Population Sample: %d\n", total);
+        printf("Literate People: %d\n", literateCount);
+        printf("Illiterate People: %d\n", illiterateCount);
+        printf("Overall Literacy Rate: %.2f%%\n", rate);
+    }
+    fclose(fp);
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n1. Add Citizen Data\n2. View Literacy Report\n3. Exit\nSelect: ");
+        scanf("%d", &choice);
+        if(choice == 1) addCitizenRecord();
+        else if(choice == 2) generateLiteracyReport();
+        else break;
+    }
+    return 0;
+}
