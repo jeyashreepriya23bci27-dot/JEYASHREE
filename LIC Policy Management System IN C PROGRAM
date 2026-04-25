@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <string.h>
+
+struct LICPolicy {
+    char policyNo[15];
+    char holderName[30];
+    char planType[20]; // Par, Non-Par, Term
+    float sumAssured;
+    int termYears;
+    float maturityAmt;
+};
+
+// Function to estimate maturity based on simplified 5% annual bonus for 'Par' plans
+void calculateMaturity(struct LICPolicy *p) {
+    if (strcasecmp(p->planType, "Par") == 0) {
+        float bonus = p->sumAssured * 0.05 * p->termYears;
+        p->maturityAmt = p->sumAssured + bonus;
+    } else {
+        p->maturityAmt = p->sumAssured; // Fixed benefit for Term/Non-Par
+    }
+}
+
+void registerPolicy() {
+    FILE *fp = fopen("lic_holders.txt", "a");
+    struct LICPolicy p;
+
+    printf("\nEnter Policy Number: ");
+    scanf("%s", p.policyNo);
+    printf("Enter Holder Name: ");
+    scanf("%s", p.holderName);
+    printf("Plan Type (Par/Non-Par/Term): ");
+    scanf("%s", p.planType);
+    printf("Sum Assured (Rs): ");
+    scanf("%f", &p.sumAssured);
+    printf("Policy Term (Years): ");
+    scanf("%d", &p.termYears);
+
+    calculateMaturity(&p);
+
+    fprintf(fp, "%-12s | %-15s | %-8s | Rs. %-10.2f | %-2d yrs | Mat: Rs. %.2f\n", 
+            p.policyNo, p.holderName, p.planType, p.sumAssured, p.termYears, p.maturityAmt);
+    
+    fclose(fp);
+    printf("Policy registered! Estimated Maturity: Rs. %.2f\n", p.maturityAmt);
+}
+
+void viewHolders() {
+    char line[150];
+    FILE *fp = fopen("lic_holders.txt", "r");
+    if (!fp) {
+        printf("\nNo records found.\n");
+        return;
+    }
+
+    printf("\n--- LIC India Policyholder Records (2026) ---\n");
+    printf("%-12s | %-15s | %-8s | Sum Assured    | Term   | Maturity\n", "Policy No", "Name", "Type");
+    printf("---------------------------------------------------------------------------\n");
+    while (fgets(line, sizeof(line), fp)) {
+        printf("%s", line);
+    }
+    fclose(fp);
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n1. New Policy Registration\n2. View All Policyholders\n3. Exit\nSelect Option: ");
+        scanf("%d", &choice);
+        if(choice == 1) registerPolicy();
+        else if(choice == 2) viewHolders();
+        else break;
+    }
+    return 0;
+}
