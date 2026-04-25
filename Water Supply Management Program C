@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <string.h>
+
+struct WaterSupply {
+    int consumerID;
+    char name[50];
+    char areaType[10]; // "Urban" or "Rural"
+    float consumption; // in Liters
+    float billAmount;
+};
+
+float calculateWaterBill(char area[], float liters) {
+    float rate;
+
+    if (strcasecmp(area, "Urban") == 0) {
+        rate = 0.15; // 0.15 per liter
+    } else {
+        rate = 0.05; // 0.05 per liter (Subsidized for Rural)
+    }
+    return liters * rate;
+}
+
+void addConsumer() {
+    FILE *fp = fopen("water_distribution.txt", "a");
+    struct WaterSupply w;
+
+    if (fp == NULL) return;
+
+    printf("\n--- New Water Connection Entry ---");
+    printf("\nEnter Consumer ID: ");
+    scanf("%d", &w.consumerID);
+    printf("Enter Name: ");
+    scanf("%s", w.name);
+    printf("Enter Area Type (Urban/Rural): ");
+    scanf("%s", w.areaType);
+    printf("Enter Consumption in Liters: ");
+    scanf("%f", &w.consumption);
+
+    w.billAmount = calculateWaterBill(w.areaType, w.consumption);
+
+
+    fprintf(fp, "%d | %-15s | %-10s | %.1f L | Rs. %.2f\n", 
+            w.consumerID, w.name, w.areaType, w.consumption, w.billAmount);
+    
+    fclose(fp);
+    printf("Record saved! Total Bill: Rs. %.2f\n", w.billAmount);
+}
+
+void viewReports() {
+    char line[200];
+    FILE *fp = fopen("water_distribution.txt", "r");
+    
+    if (!fp) {
+        printf("\nNo distribution data found.\n");
+        return;
+    }
+
+    printf("\n--- Water Distribution & Billing Report ---\n");
+    printf("ID  | Name            | Area       | Usage    | Bill\n");
+    printf("-------------------------------------------------------\n");
+    while (fgets(line, sizeof(line), fp)) {
+        printf("%s", line);
+    }
+    fclose(fp);
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n1. Add Consumer Data\n2. View Distribution Report\n3. Exit\nSelect: ");
+        scanf("%d", &choice);
+        if(choice == 1) addConsumer();
+        else if(choice == 2) viewReports();
+        else break;
+    }
+    return 0;
+}
