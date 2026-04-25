@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <string.h>
+
+struct ElectricityDemand {
+    char region[30];
+    float loadMW;   
+    char category[15]; 
+};
+
+void recordDemand() {
+    FILE *fp = fopen("tn_electricity.txt", "a");
+    struct ElectricityDemand ed;
+
+    if (fp == NULL) return;
+
+    printf("\n--- TN Electricity Demand Entry ---");
+    printf("\nEnter Region (e.g., Coimbatore, Ennore): ");
+    scanf("%s", ed.region);
+    printf("Enter Power Demand (in MW): ");
+    scanf("%f", &ed.loadMW);
+    printf("Category (Domestic/Industrial): ");
+    scanf("%s", ed.category);
+
+    fprintf(fp, "%-15s | %-10.2f MW | %s\n", ed.region, ed.loadMW, ed.category);
+    
+    fclose(fp);
+    printf("Demand data for %s recorded!\n", ed.region);
+}
+
+void viewGridStatus() {
+    FILE *fp = fopen("tn_electricity.txt", "r");
+    char line[100];
+    float totalLoad = 0;
+
+    if (!fp) {
+        printf("\nNo demand data available.\n");
+        return;
+    }
+
+    printf("\n--- Tamil Nadu Power Grid Status ---\n");
+    printf("Region          | Demand         | Category\n");
+    printf("--------------------------------------------\n");
+    
+    while (fgets(line, sizeof(line), fp)) {
+        printf("%s", line);
+        
+   
+        float currentLoad;
+        char r[30];
+        sscanf(line, "%s | %f", r, &currentLoad);
+        totalLoad += currentLoad;
+    }
+    
+    printf("--------------------------------------------\n");
+    printf("TOTAL GRID LOAD: %.2f MW\n", totalLoad);
+    
+ 
+    if (totalLoad > 5000) {
+        printf("STATUS: HIGH DEMAND - MONITOR GRID STABILITY!\n");
+    } else {
+        printf("STATUS: NORMAL\n");
+    }
+    
+    fclose(fp);
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n1. Record Region Demand\n2. View Grid Status\n3. Exit\nChoice: ");
+        scanf("%d", &choice);
+        if(choice == 1) recordDemand();
+        else if(choice == 2) viewGridStatus();
+        else break;
+    }
+    return 0;
+}
