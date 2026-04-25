@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <string.h>
+
+struct Worker {
+    char name[50];
+    int category; // 1: Unskilled, 2: Semi, 3: Skilled, 4: Highly Skilled
+    int daysWorked;
+    float dailyRate;
+    float totalEarnings;
+};
+
+void calculateSalary() {
+    FILE *fp = fopen("wage_report_2026.txt", "a");
+    struct Worker w;
+    char *catNames[] = {"Unskilled", "Semi-Skilled", "Skilled", "Highly Skilled"};
+    
+    // Rates based on April 2026 central notification
+    float rates[] = {783.0, 868.0, 954.0, 1035.0};
+
+    printf("\n--- Worker Wage Entry (2026) ---");
+    printf("\nEnter Worker Name: ");
+    scanf("%s", w.name);
+    printf("Select Category (1-Unskilled, 2-Semi, 3-Skilled, 4-Highly Skilled): ");
+    scanf("%d", &w.category);
+    printf("Enter Days Worked: ");
+    scanf("%d", &w.daysWorked);
+
+    // Logic to assign rate and calculate total
+    if (w.category >= 1 && w.category <= 4) {
+        w.dailyRate = rates[w.category - 1];
+        w.totalEarnings = w.dailyRate * w.daysWorked;
+
+        // Save to file
+        fprintf(fp, "Name: %-15s | Cat: %-15s | Days: %d | Total: Rs. %.2f\n", 
+                w.name, catNames[w.category - 1], w.daysWorked, w.totalEarnings);
+        
+        printf("\nSuccess! Daily Rate: Rs. %.2f", w.dailyRate);
+        printf("\nTotal Earnings for %d days: Rs. %.2f\n", w.daysWorked, w.totalEarnings);
+    } else {
+        printf("\nInvalid Category Selected.");
+    }
+
+    fclose(fp);
+}
+
+void viewReports() {
+    char line[200];
+    FILE *fp = fopen("wage_report_2026.txt", "r");
+    if (!fp) {
+        printf("\nNo wage records found.\n");
+        return;
+    }
+
+    printf("\n--- Consolidated Wage Report 2026 ---\n");
+    while (fgets(line, sizeof(line), fp)) {
+        printf("%s", line);
+    }
+    fclose(fp);
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n1. Add Worker Entry\n2. View Wage Reports\n3. Exit\nSelect: ");
+        scanf("%d", &choice);
+        if(choice == 1) calculateSalary();
+        else if(choice == 2) viewReports();
+        else break;
+    }
+    return 0;
+}
