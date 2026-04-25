@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <string.h>
+
+struct Factory {
+    char name[50];
+    char fuelType[20]; 
+    float consumption; 
+    float co2Output;
+};
+
+float calculateCO2(char fuel[], float qty) {
+    if (strcasecmp(fuel, "Coal") == 0) return qty * 2.86; 
+    if (strcasecmp(fuel, "Gas") == 0) return qty * 2.00;  
+    return qty * 2.50; 
+}
+
+void logEmission() {
+    FILE *fp = fopen("factory_emissions.txt", "a");
+    struct Factory f;
+
+    printf("\nEnter Factory Name: ");
+    scanf("%s", f.name);
+    printf("Enter Fuel Type (Coal/Gas/Oil): ");
+    scanf("%s", f.fuelType);
+    printf("Enter Fuel Consumption (tons): ");
+    scanf("%f", &f.consumption);
+
+    f.co2Output = calculateCO2(f.fuelType, f.consumption);
+
+    fprintf(fp, "%-15s | %-10s | %-10.2f | %.2f Tons\n", f.name, f.fuelType, f.consumption, f.co2Output);
+    fclose(fp);
+
+    printf("Emission data logged! CO2 Produced: %.2f Tons\n", f.co2Output);
+
+    if (f.co2Output > 500.0) {
+        printf("⚠️ ALERT: High Carbon Footprint! Emission exceeds safety threshold.\n");
+    }
+}
+
+void viewEmissionReport() {
+    char line[100];
+    FILE *fp = fopen("factory_emissions.txt", "r");
+    if (!fp) {
+        printf("No emission records found.\n");
+        return;
+    }
+
+    printf("\n--- Industrial CO2 Emission Report ---\n");
+    printf("%-15s | %-10s | %-10s | %-10s\n", "Factory", "Fuel", "Usage", "CO2 Output");
+    printf("----------------------------------------------------------\n");
+    while (fgets(line, sizeof(line), fp)) {
+        printf("%s", line);
+    }
+    fclose(fp);
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n1. Log Factory Emission\n2. View Full Report\n3. Exit\nSelect: ");
+        scanf("%d", &choice);
+        if(choice == 1) logEmission();
+        else if(choice == 2) viewEmissionReport();
+        else break;
+    }
+    return 0;
+}
