@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+
+struct GoldRate {
+    char date[20];
+    float rate24K; // Price per 10 grams
+    float rate22K; // Price per 10 grams
+};
+
+void logDailyRate() {
+    FILE *fp = fopen("gold_history.txt", "a");
+    struct GoldRate g;
+
+    // Get current system date
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    strftime(g.date, sizeof(g.date), "%d-%m-%Y", tm);
+
+    printf("\n--- Daily Gold Rate Entry (%s) ---", g.date);
+    printf("\nEnter 24K Rate (per 10g): ");
+    scanf("%f", &g.rate24K);
+    printf("Enter 22K Rate (per 10g): ");
+    scanf("%f", &g.rate22K);
+
+    // Save: Date | 24K | 22K
+    fprintf(fp, "%s | 24K: %.2f | 22K: %.2f\n", g.date, g.rate24K, g.rate22K);
+    
+    fclose(fp);
+    printf("Rates logged successfully!\n");
+}
+
+void calculatePortfolioValue() {
+    float grams, currentRate;
+    int purity;
+
+    printf("\n--- Gold Portfolio Calculator ---");
+    printf("\nEnter weight of gold you own (in grams): ");
+    scanf("%f", &grams);
+    printf("Enter Purity (22 or 24): ");
+    scanf("%d", &purity);
+    printf("Enter Today's Rate for %dK (per 10g): ", purity);
+    scanf("%f", &currentRate);
+
+    // Calculation: (Total Grams / 10) * Rate per 10g
+    float totalValue = (grams / 10.0) * currentRate;
+    float gst = totalValue * 0.03; // 3% GST in India
+
+    printf("\n--- Investment Summary ---");
+    printf("\nMarket Value: Rs. %.2f", totalValue);
+    printf("\nGST (3%%):      Rs. %.2f", gst);
+    printf("\nFinal Value:   Rs. %.2f\n", totalValue + gst);
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n1. Log Today's Gold Rate\n2. Calculate Portfolio Value\n3. View History\n4. Exit\nSelect: ");
+        scanf("%d", &choice);
+        if(choice == 1) logDailyRate();
+        else if(choice == 2) calculatePortfolioValue();
+        else if(choice == 3) {
+            char line[100];
+            FILE *fp = fopen("gold_history.txt", "r");
+            if(!fp) { printf("No history found.\n"); continue; }
+            while(fgets(line, sizeof(line), fp)) printf("%s", line);
+            fclose(fp);
+        }
+        else break;
+    }
+    return 0;
+}
