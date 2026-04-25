@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <string.h>
+
+struct UsageSurvey {
+    char city[30];
+    long googleUsers;
+    long chatGPTUsers;
+};
+
+void logSurveyData() {
+    FILE *fp = fopen("tech_usage_india.txt", "a");
+    struct UsageSurvey s;
+
+    if (fp == NULL) return;
+
+    printf("\nEnter City Name (e.g., Chennai, Delhi): ");
+    scanf("%s", s.city);
+    printf("Enter approx. Google Daily Users: ");
+    scanf("%ld", &s.googleUsers);
+    printf("Enter approx. ChatGPT Daily Users: ");
+    scanf("%ld", &s.chatGPTUsers);
+
+    // Save data to file
+    fprintf(fp, "%-15s | Google: %-10ld | ChatGPT: %ld\n", s.city, s.googleUsers, s.chatGPTUsers);
+    
+    fclose(fp);
+    printf("Survey data for %s logged successfully!\n", s.city);
+}
+
+void compareUsage() {
+    FILE *fp = fopen("tech_usage_india.txt", "r");
+    char line[100];
+    long totalGoogle = 0, totalChatGPT = 0;
+
+    if (!fp) {
+        printf("\nNo survey records found.\n");
+        return;
+    }
+
+    printf("\n--- India Digital Usage Comparison ---\n");
+    while (fgets(line, sizeof(line), fp)) {
+        printf("%s", line);
+        
+        long g, c;
+        char city[30];
+        // Parsing the formatted file line
+        sscanf(line, "%s | Google: %ld | ChatGPT: %ld", city, &g, &c);
+        totalGoogle += g;
+        totalChatGPT += c;
+    }
+
+    printf("---------------------------------------\n");
+    printf("TOTAL GOOGLE USERS  : %ld\n", totalGoogle);
+    printf("TOTAL CHATGPT USERS : %ld\n", totalChatGPT);
+    
+    if (totalGoogle > totalChatGPT) {
+        printf("\nRESULT: Google is used MORE in India (Dominance: %.2f%%)\n", 
+               ((float)totalGoogle / (totalGoogle + totalChatGPT)) * 100);
+    } else {
+        printf("\nRESULT: ChatGPT has overtaken Google in this data set!\n");
+    }
+    fclose(fp);
+}
+
+int main() {
+    int choice;
+    while(1) {
+        printf("\n1. Log New City Survey\n2. View Usage Comparison Report\n3. Exit\nSelect: ");
+        scanf("%d", &choice);
+        if(choice == 1) logSurveyData();
+        else if(choice == 2) compareUsage();
+        else break;
+    }
+    return 0;
+}
